@@ -509,9 +509,9 @@ static ASDisplayNodeMethodOverrides GetASDisplayNodeMethodOverrides(Class c)
   static const int kMaxDealloc2MainIvarsPerClassTree = 64;
   Ivar resultIvars[kMaxDealloc2MainIvarsPerClassTree];
 
-  // Gather superclass results first.
+  // Get superclass results first.
   Class c = class_getSuperclass(self);
-  while (c != [NSObject class]) {
+  if (c != [NSObject class]) {
     NSValue *ivarsObj = [c _ivarsThatMayNeedMainDeallocation];
     // Unwrap the ivar array and append it to our working array
     unsigned int count = 0;
@@ -519,8 +519,6 @@ static ASDisplayNodeMethodOverrides GetASDisplayNodeMethodOverrides(Class c)
     ASDisplayNodeCAssert(resultCount + count < kMaxDealloc2MainIvarsPerClassTree, @"More than %d dealloc2main ivars are not supported. Count: %d", kMaxDealloc2MainIvarsPerClassTree, resultCount + count);
     [ivarsObj getValue:resultIvars + resultCount];
     resultCount += count;
-
-    c = class_getSuperclass(c);
   }
 
   // Now gather ivars from this particular class.
