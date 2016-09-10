@@ -516,8 +516,8 @@ static ASDisplayNodeMethodOverrides GetASDisplayNodeMethodOverrides(Class c)
     // Unwrap the ivar array and append it to our working array
     unsigned int count = 0;
     NSAssert(sscanf(ivarsObj.objCType, "[%u^{objc_ivar}]", &count), @"Unexpected type in NSValue: %s", ivarsObj.objCType);
-    [ivarsObj getValue:resultIvars + resultCount];
     ASDisplayNodeCAssert(resultCount + count < kMaxDealloc2MainIvarsPerClassTree, @"More than %d dealloc2main ivars are not supported. Count: %d", kMaxDealloc2MainIvarsPerClassTree, resultCount + count);
+    [ivarsObj getValue:resultIvars + resultCount];
     resultCount += count;
 
     c = class_getSuperclass(c);
