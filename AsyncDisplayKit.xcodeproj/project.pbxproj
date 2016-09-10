@@ -387,7 +387,6 @@
 		B35062421B010EFD0018CF92 /* _ASAsyncTransactionGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 058D09FE195D050800B7D73C /* _ASAsyncTransactionGroup.m */; };
 		B35062431B010EFD0018CF92 /* UIView+ASConvenience.h in Headers */ = {isa = PBXBuildFile; fileRef = 058D09FF195D050800B7D73C /* UIView+ASConvenience.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B35062461B010EFD0018CF92 /* ASBasicImageDownloaderInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 2967F9E11AB0A4CF0072E4AB /* ASBasicImageDownloaderInternal.h */; };
-		B35062481B010EFD0018CF92 /* _AS-objc-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 058D0A02195D050800B7D73C /* _AS-objc-internal.h */; };
 		B35062491B010EFD0018CF92 /* _ASCoreAnimationExtras.h in Headers */ = {isa = PBXBuildFile; fileRef = 058D0A03195D050800B7D73C /* _ASCoreAnimationExtras.h */; };
 		B350624A1B010EFD0018CF92 /* _ASCoreAnimationExtras.mm in Sources */ = {isa = PBXBuildFile; fileRef = 058D0A04195D050800B7D73C /* _ASCoreAnimationExtras.mm */; };
 		B350624B1B010EFD0018CF92 /* _ASPendingState.h in Headers */ = {isa = PBXBuildFile; fileRef = 058D0A05195D050800B7D73C /* _ASPendingState.h */; };
@@ -856,7 +855,6 @@
 		058D09FD195D050800B7D73C /* _ASAsyncTransactionGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _ASAsyncTransactionGroup.h; sourceTree = "<group>"; };
 		058D09FE195D050800B7D73C /* _ASAsyncTransactionGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = _ASAsyncTransactionGroup.m; sourceTree = "<group>"; };
 		058D09FF195D050800B7D73C /* UIView+ASConvenience.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+ASConvenience.h"; sourceTree = "<group>"; };
-		058D0A02195D050800B7D73C /* _AS-objc-internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "_AS-objc-internal.h"; sourceTree = "<group>"; };
 		058D0A03195D050800B7D73C /* _ASCoreAnimationExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _ASCoreAnimationExtras.h; sourceTree = "<group>"; };
 		058D0A04195D050800B7D73C /* _ASCoreAnimationExtras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = _ASCoreAnimationExtras.mm; sourceTree = "<group>"; };
 		058D0A05195D050800B7D73C /* _ASPendingState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _ASPendingState.h; sourceTree = "<group>"; };
@@ -1509,7 +1507,6 @@
 				CC446A2D1D80AAE00071FD03 /* ASObjectDescriptionHelpers.h */,
 				CC446A2E1D80AAE00071FD03 /* ASObjectDescriptionHelpers.m */,
 				CC54A81B1D70077A00296A24 /* ASDispatch.h */,
-				058D0A02195D050800B7D73C /* _AS-objc-internal.h */,
 				058D0A03195D050800B7D73C /* _ASCoreAnimationExtras.h */,
 				058D0A04195D050800B7D73C /* _ASCoreAnimationExtras.mm */,
 				AC026B6D1BD57DBF00BBC17E /* _ASHierarchyChangeSet.h */,
@@ -1722,7 +1719,6 @@
 				698C8B621CAB49FC0052DC3F /* ASLayoutableExtensibility.h in Headers */,
 				698548641CA9E025008A345F /* ASEnvironment.h in Headers */,
 				AC026B6A1BD57D6F00BBC17E /* ASChangeSetDataController.h in Headers */,
-				B35062481B010EFD0018CF92 /* _AS-objc-internal.h in Headers */,
 				69F10C871C84C35D0026140C /* ASRangeControllerUpdateRangeProtocol+Beta.h in Headers */,
 				B350623C1B010EFD0018CF92 /* _ASAsyncTransaction.h in Headers */,
 				9C70F20D1CDBE9CB007D6C76 /* ASDefaultPlayButton.h in Headers */,
