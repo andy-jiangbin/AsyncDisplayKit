@@ -466,32 +466,31 @@ static ASDisplayNodeMethodOverrides GetASDisplayNodeMethodOverrides(Class c)
     queue.batchSize = 10;
   });
 
-  // Start with self.class and walk up to ASDisplayNode, enqueueing UIKit objects into the queue.
-  Class c = object_getClass(self);
-  while (c != [NSObject class]) {
-    NSValue *ivarsObj = [c _ivarsThatMayNeedMainDeallocation];
+  NSValue *ivarsObj = [[self class] _ivarsThatMayNeedMainDeallocation];
 
-    // Unwrap the ivar array
-    unsigned int count = 0;
-    NSAssert(sscanf(ivarsObj.objCType, "[%u^{objc_ivar}]", &count), @"Unexpected type in NSValue: %s", ivarsObj.objCType);
-    Ivar ivars[count];
-    [ivarsObj getValue:ivars];
+  // Unwrap the ivar array
+  unsigned int count = 0;
+  NSAssert(sscanf(ivarsObj.objCType, "[%u^{objc_ivar}]", &count), @"Unexpected type in NSValue: %s", ivarsObj.objCType);
+  Ivar ivars[count];
+  [ivarsObj getValue:ivars];
 
-    for (NSUInteger i = 0; i < count; i++) {
-      id value = object_getIvar(self, ivars[i]);
-      if (ASClassRequiresMainThreadDeallocation(object_getClass(value))) {
-        LOG(@"Trampolining ivar '%s' value %@ for main deallocation.", ivar_getName(ivars[i]), value);
-        [queue enqueue:value];
-      } else {
-        LOG(@"Not trampolining ivar '%s' value %@.", ivar_getName(ivars[i]), value);
-      }
+  for (NSUInteger i = 0; i < count; i++) {
+    id value = object_getIvar(self, ivars[i]);
+    if (ASClassRequiresMainThreadDeallocation(object_getClass(value))) {
+      LOG(@"Trampolining ivar '%s' value %@ for main deallocation.", ivar_getName(ivars[i]), value);
+      [queue enqueue:value];
+    } else {
+      LOG(@"Not trampolining ivar '%s' value %@.", ivar_getName(ivars[i]), value);
     }
-
-    c = class_getSuperclass(c);
   }
 }
 
-/// Returns an NSValue-wrapped array of Ivars. Caches results.
+/**
+ * Returns an NSValue-wrapped array of all the ivars in this class or its superclasses
+ * up through ASDisplayNode, that we expect may need to be deallocated on main.
+ * 
+ * This method caches its results.
+ */
 + (NSValue/*<[Ivar]>*/ * _Nonnull)_ivarsThatMayNeedMainDeallocation
 {
   static NSCache<Class, NSValue *> *ivarsCache;
@@ -505,38 +504,56 @@ static ASDisplayNodeMethodOverrides GetASDisplayNodeMethodOverrides(Class c)
     return result;
   }
 
-  // Cache miss. Check through our ivars.
-  unsigned int totalCount;
-  Ivar *allIvars = class_copyIvarList(self, &totalCount);
+  // Cache miss.
+  unsigned int resultCount = 0;
+  static const int kMaxDealloc2MainIvarsPerClassTree = 64;
+  Ivar resultIvars[kMaxDealloc2MainIvarsPerClassTree];
 
-  unsigned int filteredCount = 0;
-  Ivar filteredIvars[totalCount];
-  for (NSUInteger i = 0; i < totalCount; i++) {
-    Ivar ivar = allIvars[i];
+  // Gather superclass results first.
+  Class c = class_getSuperclass(self);
+  while (c != [NSObject class]) {
+    NSValue *ivarsObj = [c _ivarsThatMayNeedMainDeallocation];
+    // Unwrap the ivar array and append it to our working array
+    unsigned int count = 0;
+    NSAssert(sscanf(ivarsObj.objCType, "[%u^{objc_ivar}]", &count), @"Unexpected type in NSValue: %s", ivarsObj.objCType);
+    [ivarsObj getValue:resultIvars + resultCount];
+    ASDisplayNodeCAssert(resultCount + count < kMaxDealloc2MainIvarsPerClassTree, @"More than %d dealloc2main ivars are not supported. Count: %d", kMaxDealloc2MainIvarsPerClassTree, resultCount + count);
+    resultCount += count;
+
+    c = class_getSuperclass(c);
+  }
+
+  // Now gather ivars from this particular class.
+  unsigned int allMyIvarsCount;
+  Ivar *allMyIvars = class_copyIvarList(self, &allMyIvarsCount);
+
+  for (NSUInteger i = 0; i < allMyIvarsCount; i++) {
+    Ivar ivar = allMyIvars[i];
     const char *type = ivar_getTypeEncoding(ivar);
 
     if (strcmp(type, @encode(id)) == 0) {
       // If it's `id` we have to include it just in case.
-      filteredIvars[filteredCount] = ivar;
-      filteredCount += 1;
+      resultIvars[resultCount] = ivar;
+      resultCount += 1;
       LOG(@"Marking ivar '%s' for possible main deallocation due to type id", ivar_getName(ivar));
     } else {
       // If it's an ivar with a static type, check the type.
       Class c = ASGetClassFromType(type);
       if (ASClassRequiresMainThreadDeallocation(c)) {
-        filteredIvars[filteredCount] = ivar;
-        filteredCount += 1;
+        resultIvars[resultCount] = ivar;
+        resultCount += 1;
         LOG(@"Marking ivar '%s' for main deallocation due to class %@", ivar_getName(ivar), c);
       } else {
         LOG(@"Skipping ivar '%s' for main deallocation.", ivar_getName(ivar));
       }
     }
   }
-  free(allIvars);
+  free(allMyIvars);
 
+  // Encode the type (array of Ivars) into a string and wrap it in an NSValue
   char arrayType[32];
-  snprintf(arrayType, 32, "[%u^{objc_ivar}]", filteredCount);
-  result = [NSValue value:filteredIvars withObjCType:arrayType];
+  snprintf(arrayType, 32, "[%u^{objc_ivar}]", resultCount);
+  result = [NSValue value:resultIvars withObjCType:arrayType];
 
   [ivarsCache setObject:result forKey:self];
   return result;
